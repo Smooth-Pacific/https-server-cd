@@ -1,4 +1,5 @@
 #include "Config.h"
+#include <thread>
 
 Config::Config(){
     PORT = getenv("PORT") ? static_cast<int>(std::stoi(getenv("PORT"))) : 8080;
@@ -14,9 +15,38 @@ Config::Config(){
     CONNECTION_TIMEOUT = getenv("TIMEOUT") ? static_cast<int>(std::stoi(getenv("TIMEOUT"))) : 180;
 
     MEMORY_LIMIT = getenv("MEMORY_LIMIT") ? static_cast<int>(std::stoi(getenv("MEMORY_LIMIT"))) : 32768;
+
+    MAX_THREADS = getenv("MAX_THREADS") ? static_cast<int>(std::stoi(getenv("MAX_THREADS"))) : 1;
 }
 
 Config& Config::get_instance(){
     static Config config;
     return config;
+}
+
+int Config::GET_PORT(){
+    return PORT;
+}
+int Config::GET_MAX_CONNECTIONS(){
+    return MAX_CONNECTIONS;
+}
+int Config::GET_CONNECTION_TIMEOUT(){
+    return CONNECTION_TIMEOUT;
+}
+int Config::GET_MEMORY_LIMIT(){
+    return MEMORY_LIMIT;
+}
+std::string Config::GET_HTTPS_MEM_KEY(){
+    return HTTPS_MEM_KEY;
+}
+std::string Config::GET_HTTPS_MEM_CERT(){
+    return HTTPS_MEM_CERT;
+}
+int Config::GET_MAX_THREADS(){
+    // if more than 4 cores is set, start a thread pool (>1 cores automatically starts a thread pool)
+    const int processor_count = std::thread::hardware_concurrency();
+    if(MAX_THREADS > 4 && processor_count > 4){
+        return MAX_THREADS;
+    }
+    return 1;
 }
