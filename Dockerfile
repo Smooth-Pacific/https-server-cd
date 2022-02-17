@@ -1,37 +1,53 @@
-FROM centos:latest
+FROM ubuntu:20.04
 
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+ENV TZ=America/Chicago
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN yum update -y
-RUN yum -y install dnf
-RUN dnf -y --enablerepo=powertools install gtest-devel
-RUN dnf -y --enablerepo=powertools install libmicrohttpd-devel
-RUN dnf -y group install "Development Tools"
-RUN dnf -y install ca-certificates
-RUN yum -y install git
-RUN yum -y install curl
-RUN yum -y install wget
-RUN yum -y install vim
-RUN yum -y install tree
-RUN yum -y install zip
-RUN yum -y install unzip
-RUN yum -y install libtool
-RUN yum -y install m4
-RUN yum -y install automake
-RUN yum -y install cmake
-RUN yum -y install make
-RUN yum -y install clang
-RUN yum -y install gdb
-RUN yum -y install cscope
-RUN yum -y install epel-release
-RUN yum -y install htop
-RUN yum -y install iotop
-RUN yum -y install iftop
-RUN yum -y install zsh
-RUN yum -y install nano
-RUN yum -y install xterm
-RUN yum -y install autoconf
+RUN apt-get update -y
+RUN apt-get install -y --no-install-recommends git \
+                                           curl \
+                                           wget \
+                                           vim \
+                                           tree \
+                                           zip \
+                                           unzip \
+                                           libtool \
+                                           m4 \
+                                           automake \
+                                           cmake \
+                                           make \
+                                           gnutls-bin \
+                                           clang \
+                                           gdb \
+                                           cscope \
+                                           htop \
+                                           iotop \
+                                           iftop \
+                                           zsh \
+                                           nano \
+                                           xterm \
+                                           autoconf \
+                                           ssh \
+                                           build-essential \
+                                           pkg-config \
+                                           libgtest-dev \
+                                           libmicrohttpd-dev \
+                                           ca-certificates \
+                                           g++ \
+                                           python-dev \
+                                           autotools-dev \
+                                           libicu-dev \
+                                           libbz2-dev \
+                                           libboost-all-dev
+                                           
+RUN apt-get install -y --no-install-recommends libboost-dev 
+
+#RUN wget -O boost_1_78_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz && \
+#    tar xzvf boost_1_78_0.tar.gz && \
+#    cd boost_1_78_0/ && \
+#    ./bootstrap.sh --prefix=/usr/ && \
+#    ./b2 --with=all -j 8 install && \
+#    ldconfig -v
 
 # install libhttpserver
 RUN cd /tmp && \
@@ -57,9 +73,8 @@ WORKDIR /home/webserver
 # switch to root to install CA certificate and switch back to webserver
 USER root
 # copy over CA-certificate to local container;
-COPY ./certs/root_ca/certs/smoothstack_root.crt /etc/pki/ca-trust/source/anchors/smoothstack_root.crt
-RUN update-ca-trust enable
-RUN update-ca-trust trust
+COPY ./certs/root_ca/certs/smoothstack_root.crt /usr/local/share/ca-certificates/smoothstack_client.crt
+RUN update-ca-certificates
 USER webserver
 
 # you can comment out everything below if you don't want oh-my-zsh/make the container more lightweight
