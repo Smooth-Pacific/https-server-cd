@@ -4,23 +4,24 @@ class Config{
     private:
         Config();
 
-        int         PORT;
-        int         MAX_CONNECTIONS;
-        int         CONNECTION_TIMEOUT;
-        int         MEMORY_LIMIT;
-        int         MAX_THREADS;
-        std::string HTTPS_MEM_KEY;
-        std::string HTTPS_MEM_CERT;
+        uint16_t         PORT;
+        uint16_t         MAX_CONNECTIONS;
+        uint16_t         CONNECTION_TIMEOUT;
+        uint16_t         MEMORY_LIMIT;
+        uint16_t         MAX_THREADS;
+        std::string      HTTPS_MEM_KEY;
+        std::string      HTTPS_MEM_CERT;
 
     public:
         static Config& get_instance();
 
-        // getters
-        int         GET_PORT();
-        int         GET_MAX_CONNECTIONS();
-        int         GET_CONNECTION_TIMEOUT();
-        int         GET_MEMORY_LIMIT();
-        int         GET_MAX_THREADS();
-        std::string GET_HTTPS_MEM_KEY();
-        std::string GET_HTTPS_MEM_CERT();
+        void update_config();
+
+        uint16_t         GET_PORT();
+        uint16_t         GET_MAX_CONNECTIONS();
+        uint16_t         GET_CONNECTION_TIMEOUT();
+        uint16_t         GET_MEMORY_LIMIT();
+        uint16_t         GET_MAX_THREADS();
+        std::string      GET_HTTPS_MEM_KEY();
+        std::string      GET_HTTPS_MEM_CERT();
 };
