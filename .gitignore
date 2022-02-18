@@ -1,4 +1,4 @@
 .directory
 .vscode
-.build
-.certs
+build
+certs

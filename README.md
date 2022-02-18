@@ -59,7 +59,7 @@ These commands will create a binary `./server` in the `~/source_directory/build`
 We now need to copy the CA certificates directory into the container. We can accomplish by following the commands:
 ```
 cd ~/source_directory
-cp -r .certs ~/certs
+cp -r certs ~/certs
 ```
 This will copy the CA certificates to the `~certs` directory inside the container
 
@@ -93,6 +93,8 @@ sh attach.sh
 curl -v 'https://172.17.0.2:8081/helloworld'
 # or
 curl -v 'https://localhost:8081/helloworld'
+# IPv6
+curl -v --digest --user calvin:mypass https://\[::1\]:8081/helloworld
 ```
 The command should output something like this in the very last line:
 ```

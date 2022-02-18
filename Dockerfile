@@ -1,37 +1,55 @@
-FROM centos:latest
+FROM ubuntu:20.04
 
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-Linux-*
-RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-Linux-*
+ENV TZ=America/Chicago
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN yum update -y
-RUN yum -y install dnf
-RUN dnf -y --enablerepo=powertools install gtest-devel
-RUN dnf -y --enablerepo=powertools install libmicrohttpd-devel
-RUN dnf -y group install "Development Tools"
-RUN dnf -y install ca-certificates
-RUN yum -y install git
-RUN yum -y install curl
-RUN yum -y install wget
-RUN yum -y install vim
-RUN yum -y install tree
-RUN yum -y install zip
-RUN yum -y install unzip
-RUN yum -y install libtool
-RUN yum -y install m4
-RUN yum -y install automake
-RUN yum -y install cmake
-RUN yum -y install make
-RUN yum -y install clang
-RUN yum -y install gdb
-RUN yum -y install cscope
-RUN yum -y install epel-release
-RUN yum -y install htop
-RUN yum -y install iotop
-RUN yum -y install iftop
-RUN yum -y install zsh
-RUN yum -y install nano
-RUN yum -y install xterm
-RUN yum -y install autoconf
+RUN apt-get update -y
+RUN apt-get install -y --no-install-recommends git
+RUN apt-get install -y --no-install-recommends curl 
+RUN apt-get install -y --no-install-recommends wget 
+RUN apt-get install -y --no-install-recommends vim 
+RUN apt-get install -y --no-install-recommends tree 
+RUN apt-get install -y --no-install-recommends zip 
+RUN apt-get install -y --no-install-recommends unzip 
+RUN apt-get install -y --no-install-recommends libtool 
+RUN apt-get install -y --no-install-recommends m4 
+RUN apt-get install -y --no-install-recommends automake 
+RUN apt-get install -y --no-install-recommends cmake 
+RUN apt-get install -y --no-install-recommends make 
+RUN apt-get install -y --no-install-recommends gnutls-bin 
+RUN apt-get install -y --no-install-recommends clang 
+RUN apt-get install -y --no-install-recommends gdb 
+RUN apt-get install -y --no-install-recommends cscope 
+RUN apt-get install -y --no-install-recommends htop 
+RUN apt-get install -y --no-install-recommends iotop 
+RUN apt-get install -y --no-install-recommends iftop 
+RUN apt-get install -y --no-install-recommends zsh 
+RUN apt-get install -y --no-install-recommends nano 
+RUN apt-get install -y --no-install-recommends xterm 
+RUN apt-get install -y --no-install-recommends autoconf 
+RUN apt-get install -y --no-install-recommends ssh 
+RUN apt-get install -y --no-install-recommends build-essential 
+RUN apt-get install -y --no-install-recommends pkg-config 
+RUN apt-get install -y --no-install-recommends libgtest-dev 
+RUN apt-get install -y --no-install-recommends libmicrohttpd-dev 
+RUN apt-get install -y --no-install-recommends ca-certificates 
+RUN apt-get install -y --no-install-recommends g++ 
+RUN apt-get install -y --no-install-recommends python-dev 
+RUN apt-get install -y --no-install-recommends autotools-dev 
+RUN apt-get install -y --no-install-recommends libicu-dev 
+RUN apt-get install -y --no-install-recommends libbz2-dev 
+RUN apt-get install -y --no-install-recommends libboost-all-dev 
+RUN apt-get install -y --no-install-recommends iproute2
+RUN apt-get install -y --no-install-recommends python3-pip
+                                           
+RUN apt-get install -y --no-install-recommends libboost-dev 
+
+#RUN wget -O boost_1_78_0.tar.gz https://boostorg.jfrog.io/artifactory/main/release/1.78.0/source/boost_1_78_0.tar.gz && \
+#    tar xzvf boost_1_78_0.tar.gz && \
+#    cd boost_1_78_0/ && \
+#    ./bootstrap.sh --prefix=/usr/ && \
+#    ./b2 --with=all -j 8 install && \
+#    ldconfig -v
 
 # install libhttpserver
 RUN cd /tmp && \
@@ -57,9 +75,8 @@ WORKDIR /home/webserver
 # switch to root to install CA certificate and switch back to webserver
 USER root
 # copy over CA-certificate to local container;
-COPY ./certs/root_ca/certs/smoothstack_root.crt /etc/pki/ca-trust/source/anchors/smoothstack_root.crt
-RUN update-ca-trust enable
-RUN update-ca-trust trust
+COPY ./certs/root_ca/certs/smoothstack_root.crt /usr/local/share/ca-certificates/smoothstack_client.crt
+RUN update-ca-certificates
 USER webserver
 
 # you can comment out everything below if you don't want oh-my-zsh/make the container more lightweight
