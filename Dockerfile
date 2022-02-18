@@ -4,41 +4,43 @@ ENV TZ=America/Chicago
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 RUN apt-get update -y
-RUN apt-get install -y --no-install-recommends git \
-                                           curl \
-                                           wget \
-                                           vim \
-                                           tree \
-                                           zip \
-                                           unzip \
-                                           libtool \
-                                           m4 \
-                                           automake \
-                                           cmake \
-                                           make \
-                                           gnutls-bin \
-                                           clang \
-                                           gdb \
-                                           cscope \
-                                           htop \
-                                           iotop \
-                                           iftop \
-                                           zsh \
-                                           nano \
-                                           xterm \
-                                           autoconf \
-                                           ssh \
-                                           build-essential \
-                                           pkg-config \
-                                           libgtest-dev \
-                                           libmicrohttpd-dev \
-                                           ca-certificates \
-                                           g++ \
-                                           python-dev \
-                                           autotools-dev \
-                                           libicu-dev \
-                                           libbz2-dev \
-                                           libboost-all-dev
+RUN apt-get install -y --no-install-recommends git
+RUN apt-get install -y --no-install-recommends curl 
+RUN apt-get install -y --no-install-recommends wget 
+RUN apt-get install -y --no-install-recommends vim 
+RUN apt-get install -y --no-install-recommends tree 
+RUN apt-get install -y --no-install-recommends zip 
+RUN apt-get install -y --no-install-recommends unzip 
+RUN apt-get install -y --no-install-recommends libtool 
+RUN apt-get install -y --no-install-recommends m4 
+RUN apt-get install -y --no-install-recommends automake 
+RUN apt-get install -y --no-install-recommends cmake 
+RUN apt-get install -y --no-install-recommends make 
+RUN apt-get install -y --no-install-recommends gnutls-bin 
+RUN apt-get install -y --no-install-recommends clang 
+RUN apt-get install -y --no-install-recommends gdb 
+RUN apt-get install -y --no-install-recommends cscope 
+RUN apt-get install -y --no-install-recommends htop 
+RUN apt-get install -y --no-install-recommends iotop 
+RUN apt-get install -y --no-install-recommends iftop 
+RUN apt-get install -y --no-install-recommends zsh 
+RUN apt-get install -y --no-install-recommends nano 
+RUN apt-get install -y --no-install-recommends xterm 
+RUN apt-get install -y --no-install-recommends autoconf 
+RUN apt-get install -y --no-install-recommends ssh 
+RUN apt-get install -y --no-install-recommends build-essential 
+RUN apt-get install -y --no-install-recommends pkg-config 
+RUN apt-get install -y --no-install-recommends libgtest-dev 
+RUN apt-get install -y --no-install-recommends libmicrohttpd-dev 
+RUN apt-get install -y --no-install-recommends ca-certificates 
+RUN apt-get install -y --no-install-recommends g++ 
+RUN apt-get install -y --no-install-recommends python-dev 
+RUN apt-get install -y --no-install-recommends autotools-dev 
+RUN apt-get install -y --no-install-recommends libicu-dev 
+RUN apt-get install -y --no-install-recommends libbz2-dev 
+RUN apt-get install -y --no-install-recommends libboost-all-dev 
+RUN apt-get install -y --no-install-recommends iproute2
+RUN apt-get install -y --no-install-recommends python3-pip
                                            
 RUN apt-get install -y --no-install-recommends libboost-dev 
 
