@@ -18,6 +18,13 @@ else
             cp -r ~/certs ./
         fi
 
+        # create ipv6 network if does not exist
+        docker network inspect mynetv6-1 >/dev/null 2>&1 || \
+        docker network create --ipv6 \
+        --subnet="2001:db8:1::/64" \
+        --gateway="2001:db8:1::1" \
+        mynetv6-1
+
         # build docker image
         docker build -f $DOCKERFILE -t dockerdev .
     else
