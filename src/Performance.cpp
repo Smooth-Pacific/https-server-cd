@@ -14,7 +14,8 @@
 
 #include "Performance.h"
 
-Performance_Monitoring::Performance_Monitoring(){
+Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_flag){
+    stop_thread_flag = &stop_thread_flag;
     boost::log::add_file_log(
         boost::log::keywords::file_name = "data.log",
         boost::log::keywords::target_file_name = "data.log",
@@ -30,7 +31,7 @@ Performance_Monitoring::Performance_Monitoring(){
 }
 
 void Performance_Monitoring::monitor(){
-    while(true){
+    while(!stop_thread_flag){
         struct sysinfo memInfo;
 
         sysinfo (&memInfo);
@@ -43,7 +44,7 @@ void Performance_Monitoring::monitor(){
         physMemUsed /= 1024;
 
         BOOST_LOG_TRIVIAL(info) << get_process_ram_usage() << "KB used by the process";
-        BOOST_LOG_TRIVIAL(info) << physMemUsed << "KB / " << totalPhysMem << "KB";
+        //BOOST_LOG_TRIVIAL(info) << physMemUsed << "KB / " << totalPhysMem << "KB";
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
