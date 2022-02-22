@@ -12,6 +12,12 @@ class Config{
         std::string      HTTPS_MEM_KEY;
         std::string      HTTPS_MEM_CERT;
 
+        template <typename T>
+        T update_option(T& option, const char* env_var);
+
+        template <typename T, unsigned int base>
+        T update_option(T& option, const char* env_var);
+
     public:
         static Config& get_instance();
 
