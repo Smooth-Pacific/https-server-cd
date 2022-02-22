@@ -72,6 +72,8 @@ RUN useradd -ms /bin/bash webserver
 USER webserver
 WORKDIR /home/webserver
 
+COPY --chown=webserver certs $HOME/certs
+
 # switch to root to install CA certificate and switch back to webserver
 USER root
 # copy over CA-certificate to local container;

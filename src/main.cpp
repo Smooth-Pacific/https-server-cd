@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
         cw.https_mem_key(config.GET_HTTPS_MEM_KEY());
     }
     else{
-        std::cerr << "ERROR: Could not find CA key" << std::endl;
+        std::cerr << "ERROR: Could not find HTTPS_MEM_KEY" << config.GET_HTTPS_MEM_KEY() << std::endl;  // log this in the future
         stop_thread_flag = true;    // allow for graceful stop of logging thread
         exit(1);
     }
@@ -47,14 +47,19 @@ int main(int argc, char** argv) {
         cw.https_mem_cert(config.GET_HTTPS_MEM_CERT());
     }
     else{
-        std::cerr << "ERROR: Could not find CA cert" << std::endl;
+        std::cerr << "ERROR: Could not find HTTPS_MEM_CERT: " << config.GET_HTTPS_MEM_CERT() << std::endl; // log this in the future
         stop_thread_flag = true;    // allow for graceful stop of logging thread   
         exit(1);
     }
 
+    // create webserver
     httpserver::webserver ws = cw;
+    
+    // create resource and endpoint
     hello_world_resource hwr;
     ws.register_resource("/helloworld", &hwr);
+
+    // start web server
     ws.start(true);
 
     return 0;
