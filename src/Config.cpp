@@ -1,11 +1,12 @@
 #include "Config.h"
 #include <thread>
 #include <iostream>
-#include <iomanip>
+#include <cstring>
 
-Config::Config(): 
+Config::Config(bool debug = true): 
+    DEBUG_FLAG(debug),
     PORT(8080), 
-    MAX_CONNECTIONS(4), 
+    MAX_CONNECTIONS(32), 
     CONNECTION_TIMEOUT(180), 
     MEMORY_LIMIT(32768),
     MAX_THREADS(1), 
@@ -15,13 +16,15 @@ Config::Config():
     // update values if environment variables are set
     update_config();
 
-    std::cout << "Server option Port:            " << GET_PORT() << std::endl;
-    std::cout << "Server option HTTPS_MEM_KEY:   " << GET_HTTPS_MEM_KEY() << std::endl;
-    std::cout << "Server option HTTPS_MEM_CERT:  " << GET_HTTPS_MEM_CERT() << std::endl;
-    std::cout << "Server option MAX_CONNECTIONS: " << GET_MAX_CONNECTIONS() << std::endl;
-    std::cout << "Server option TIMEOUT:         " << GET_CONNECTION_TIMEOUT() << std::endl;
-    std::cout << "Server option MEMORY_LIMIT:    " << GET_MEMORY_LIMIT() << std::endl;
-    std::cout << "Server option MAX_THREADS:     " << GET_MAX_THREADS() << std::endl;
+    if(DEBUG_FLAG){
+        std::cout << "Server option Port:            " << GET_PORT() << std::endl;
+        std::cout << "Server option HTTPS_MEM_KEY:   " << GET_HTTPS_MEM_KEY() << std::endl;
+        std::cout << "Server option HTTPS_MEM_CERT:  " << GET_HTTPS_MEM_CERT() << std::endl;
+        std::cout << "Server option MAX_CONNECTIONS: " << GET_MAX_CONNECTIONS() << std::endl;
+        std::cout << "Server option TIMEOUT:         " << GET_CONNECTION_TIMEOUT() << std::endl;
+        std::cout << "Server option MEMORY_LIMIT:    " << GET_MEMORY_LIMIT() << std::endl;
+        std::cout << "Server option MAX_THREADS:     " << GET_MAX_THREADS() << std::endl;
+    }
 }
 
 template <typename T>
@@ -31,7 +34,6 @@ T Config::update_option(T& option, const char* env_var){
         return static_cast<T>(getenv(env_var));
     }
     else{
-        std::cout << option << std::endl;
         return option;
     }
 }
@@ -39,7 +41,7 @@ T Config::update_option(T& option, const char* env_var){
 template <typename T, unsigned int base>
 T Config::update_option(T& option, const char* env_var){
     char* buffer = getenv(env_var);
-    if(buffer != NULL){
+    if(buffer != NULL && strcmp(getenv(env_var), "0") != 0){     // compares !NULL and !"0"
         return static_cast<T>(std::stoul(getenv(env_var), nullptr, base));
     }
     else{
@@ -47,8 +49,8 @@ T Config::update_option(T& option, const char* env_var){
     }
 }
 
-Config& Config::get_instance(){
-    static Config config;
+Config& Config::get_instance(bool debug){
+    static Config config(debug);
     return config;
 }
 

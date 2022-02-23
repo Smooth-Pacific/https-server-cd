@@ -2,7 +2,7 @@
 
 class Config{
     private:
-        Config();
+        Config(bool debug);
 
         uint16_t         PORT;
         uint16_t         MAX_CONNECTIONS;
@@ -11,6 +11,7 @@ class Config{
         uint16_t         MAX_THREADS;
         std::string      HTTPS_MEM_KEY;
         std::string      HTTPS_MEM_CERT;
+        bool             DEBUG_FLAG;
 
         template <typename T>
         T update_option(T& option, const char* env_var);
@@ -19,7 +20,7 @@ class Config{
         T update_option(T& option, const char* env_var);
 
     public:
-        static Config& get_instance();
+        static Config& get_instance(bool debug = true);
 
         void update_config();
 
