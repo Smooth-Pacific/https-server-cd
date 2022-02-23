@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
         .start_method(httpserver::http::http_utils::INTERNAL_SELECT)
         .max_threads(config.GET_MAX_THREADS())
         .log_access(custom_access_log)
+        .use_dual_stack()
         .digest_auth();
 
     // check for valid CA key

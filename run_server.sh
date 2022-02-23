@@ -2,7 +2,7 @@
 
 # START SERVER OPTIONS
 export PORT=8081
-export MAX_CONNECTIONS=16
+export MAX_CONNECTIONS=32
 export CONNECTION_TIMEOUT=120
 export MEMORY_LIMIT=65535
 export HTTPS_MEM_KEY_PATH=~/certs/server_ca/private/smoothstack_server.key
