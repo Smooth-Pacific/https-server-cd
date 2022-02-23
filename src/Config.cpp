@@ -1,36 +1,73 @@
 #include "Config.h"
 #include <thread>
 #include <iostream>
+#include <cstring>
 
-Config::Config(){
+Config::Config(bool debug = true): 
+    DEBUG_FLAG(debug),
+    PORT(8080), 
+    MAX_CONNECTIONS(32), 
+    CONNECTION_TIMEOUT(180), 
+    MEMORY_LIMIT(32768),
+    MAX_THREADS(1), 
+    HTTPS_MEM_KEY("./certs/server_ca/private/smoothstack_server.key"),
+    HTTPS_MEM_CERT("./certs/server_ca/certs/smoothstack_server.crt"){
+
+    // update values if environment variables are set
     update_config();
 
-    std::cout << "Port: "               << PORT << std::endl;
-    std::cout << "HTTPS_MEM_KEY: "      << HTTPS_MEM_KEY << std::endl;
-    std::cout << "HTTPS_MEM_CERT: "     << HTTPS_MEM_CERT << std::endl;
-    std::cout << "MAX_CONNECTIONS: "    << MAX_CONNECTIONS << std::endl;
-    std::cout << "TIMEOUT: "            << CONNECTION_TIMEOUT << std::endl;
-    std::cout << "MEMORY_LIMIT: "       << MEMORY_LIMIT << std::endl;
-    std::cout << "MAX_THREADS: "        << MAX_THREADS << std::endl;
+    if(DEBUG_FLAG){
+        std::cout << "Server option Port:            " << GET_PORT() << std::endl;
+        std::cout << "Server option HTTPS_MEM_KEY:   " << GET_HTTPS_MEM_KEY() << std::endl;
+        std::cout << "Server option HTTPS_MEM_CERT:  " << GET_HTTPS_MEM_CERT() << std::endl;
+        std::cout << "Server option MAX_CONNECTIONS: " << GET_MAX_CONNECTIONS() << std::endl;
+        std::cout << "Server option TIMEOUT:         " << GET_CONNECTION_TIMEOUT() << std::endl;
+        std::cout << "Server option MEMORY_LIMIT:    " << GET_MEMORY_LIMIT() << std::endl;
+        std::cout << "Server option MAX_THREADS:     " << GET_MAX_THREADS() << std::endl;
+    }
 }
 
-Config& Config::get_instance(){
-    static Config config;
+template <typename T>
+T Config::update_option(T& option, const char* env_var){
+    char* buffer = getenv(env_var);
+    if(buffer != NULL){
+        return static_cast<T>(getenv(env_var));
+    }
+    else{
+        return option;
+    }
+}
+
+template <typename T, unsigned int base>
+T Config::update_option(T& option, const char* env_var){
+    char* buffer = getenv(env_var);
+    if(buffer != NULL && strcmp(getenv(env_var), "0") != 0){     // compares !NULL and !"0"
+        return static_cast<T>(std::stoul(getenv(env_var), nullptr, base));
+    }
+    else{
+        return option;
+    }
+}
+
+Config& Config::get_instance(bool debug){
+    static Config config(debug);
     return config;
 }
 
+// #### PUBLIC METHODS START HERE #### //
+
+// this should only ever be used for testing purposes outside of the class
 void Config::update_config(){
-    PORT                = getenv("PORT")                ? static_cast<uint16_t>(std::stoi(getenv("PORT"))) : 8080;
-    HTTPS_MEM_KEY       = getenv("HTTPS_MEM_KEY_PATH")  ? static_cast<std::string>(getenv("HTTPS_MEM_KEY_PATH")) : 
-                            "../certs/server_ca/private/smoothstack_server.key";
-    HTTPS_MEM_CERT      = getenv("HTTPS_MEM_CERT_PATH") ? static_cast<std::string>(getenv("HTTPS_MEM_CERT_PATH")) : 
-                            "../certs/server_ca/certs/smoothstack_server.crt";
-    MAX_CONNECTIONS     = getenv("MAX_CONNECTIONS")     ? static_cast<uint16_t>(std::stoi(getenv("MAX_CONNECTIONS"))) : 4;
-    CONNECTION_TIMEOUT  = getenv("TIMEOUT")             ? static_cast<uint16_t>(std::stoi(getenv("TIMEOUT"))) : 180;
-    MEMORY_LIMIT        = getenv("MEMORY_LIMIT")        ? static_cast<uint16_t>(std::stoi(getenv("MEMORY_LIMIT"))) : 32768;
-    MAX_THREADS         = getenv("MAX_THREADS")         ? static_cast<uint16_t>(std::stoi(getenv("MAX_THREADS"))) : 1;
+    PORT                = update_option<uint16_t, 10>   (PORT, "PORT");
+    HTTPS_MEM_KEY       = update_option<std::string>    (HTTPS_MEM_KEY, "HTTPS_MEM_KEY_PATH");
+    HTTPS_MEM_CERT      = update_option<std::string>    (HTTPS_MEM_CERT, "HTTPS_MEM_CERT_PATH");
+    MAX_CONNECTIONS     = update_option<uint16_t, 10>   (MAX_CONNECTIONS, "MAX_CONNECTIONS");
+    CONNECTION_TIMEOUT  = update_option<uint16_t, 10>   (CONNECTION_TIMEOUT, "CONNECTION_TIMEOUT");
+    MEMORY_LIMIT        = update_option<uint16_t, 10>   (MEMORY_LIMIT, "MEMORY_LIMIT");
+    MAX_THREADS         = update_option<uint16_t, 10>   (MAX_THREADS, "MAX_THREADS");
 }
 
+// getters
 uint16_t Config::GET_PORT(){
     return PORT;
 }

@@ -2,3 +2,5 @@
 .vscode
 build
 certs
+data.log
+src/Makefile
