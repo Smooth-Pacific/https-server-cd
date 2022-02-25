@@ -1,58 +1,45 @@
 #include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>
-#include <boost/log/utility/setup/file.hpp>
-#include <boost/log/utility/setup/common_attributes.hpp>
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <chrono>
 #include <thread>
-#include "sys/types.h"
-#include "sys/sysinfo.h"
+#include <sstream>
+#include <iostream>
+#include "sys/times.h"
+#include "sys/vtimes.h"
 
 #include "Performance.h"
+#include "Logging.h"
 
-Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_flag){
-    stop_thread_flag = &stop_thread_flag;
-    boost::log::add_file_log(
-        boost::log::keywords::file_name = "data.log",
-        boost::log::keywords::target_file_name = "data.log",
-        boost::log::keywords::open_mode = std::ios::app,
-        boost::log::keywords::format = "[%TimeStamp%] [%Severity%] %Message%",
-        
-        // https://stackoverflow.com/questions/18034738/boost-log-file-not-written-to/18036016#18036016
-        boost::log::keywords::auto_flush = false     // turn off auto_flush on production (debugging only)
-    );
-
-    boost::log::core::get()->set_filter(boost::log::trivial::severity >= boost::log::trivial::info);
-    boost::log::add_common_attributes();
-}
+Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_flag)
+    : stop_thread_flag(&stop_thread_flag){
+        init();
+    }
 
 void Performance_Monitoring::monitor(){
-    while(!stop_thread_flag){
-        struct sysinfo memInfo;
+    Logging log("performance.log");
 
-        sysinfo (&memInfo);
-        // Get total physical RAM
-        long long totalPhysMem = memInfo.totalram;
-        totalPhysMem /= 1024;
+    while(stop_thread_flag){
 
-        // Get total physical RAM used
-        long long physMemUsed = memInfo.totalram - memInfo.freeram;
-        physMemUsed /= 1024;
-
-        BOOST_LOG_TRIVIAL(info) << get_process_ram_usage() << "KB used by the process";
-        //BOOST_LOG_TRIVIAL(info) << physMemUsed << "KB / " << totalPhysMem << "KB";
+        // process memory; process CPU; total CPU; ram avail; total ram; avalable swap; total swap
+        std::stringstream ss;
+        ss << get_process_cpu() << ";" << get_cpu() << ";" <<
+        get_data("/proc/self/status", "VmRSS:") << ";" << 
+        get_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_data("/proc/meminfo", "MemTotal:") <<  ";" << 
+        get_data("/proc/meminfo", "SwapFree:") << ";" << get_data("/proc/meminfo", "SwapTotal:");
+        
+        log.log_trace(ss.str());
+        //std::cout << ss.str() << std::endl;
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
 }
 
-uint16_t Performance_Monitoring::parse_line(char* line){
+int Performance_Monitoring::parse_line(char* line){
     // This assumes that a digit will be found and the line ends in " Kb".
-    uint16_t i = strlen(line);
+    int i = strlen(line);
     const char* p = line;
     while(*p <'0' || *p > '9'){
         p++;
@@ -62,20 +49,99 @@ uint16_t Performance_Monitoring::parse_line(char* line){
     return i;
 }
 
-// this returns in KB
-uint16_t Performance_Monitoring::get_process_ram_usage(){
-    FILE* file = fopen("/proc/self/status", "r");
-    uint16_t result = -1;
+// returns data in KB
+int Performance_Monitoring::get_data(const char* path, const char* line_name){
+    FILE* file = fopen(path, "r");
+    int result = -1;
     char line[128];
 
     while(fgets(line, 128, file) != NULL){
-        if(strncmp(line, "VmRSS:", 6) == 0){
+        if(strncmp(line, line_name, 6) == 0){
             result = parse_line(line);
             break;
         }
     }
     fclose(file);
     return result;
+}
+
+void Performance_Monitoring::init(){
+    FILE* file_process_cpu;
+    struct tms timeSample;
+    char line[128];
+
+    lastCPU = times(&timeSample);
+    lastSysCPU = timeSample.tms_stime;
+    lastUserCPU = timeSample.tms_utime;
+
+    file_process_cpu = fopen("/proc/cpuinfo", "r");
+    numProcessors = 0;
+    while(fgets(line, 128, file_process_cpu) != NULL){
+        if (strncmp(line, "processor", 9) == 0) numProcessors++;
+    }
+    fclose(file_process_cpu);
+
+    FILE* file_cpu = fopen("/proc/stat", "r");
+    fscanf(file_cpu, "cpu %llu %llu %llu %llu", &lastTotalUser, &lastTotalUserLow,
+        &lastTotalSys, &lastTotalIdle);
+    fclose(file_cpu);
+}
+
+double Performance_Monitoring::get_process_cpu(){
+    struct tms timeSample;
+    clock_t now;
+    double percent;
+
+    now = times(&timeSample);
+    if (now <= lastCPU || timeSample.tms_stime < lastSysCPU ||
+        timeSample.tms_utime < lastUserCPU){
+        //Overflow detection. Just skip this value.
+        percent = -1.0;
+    }
+    else{
+        percent = (timeSample.tms_stime - lastSysCPU) +
+            (timeSample.tms_utime - lastUserCPU);
+        percent /= (now - lastCPU);
+        percent /= numProcessors;
+        percent *= 100;
+    }
+    lastCPU = now;
+    lastSysCPU = timeSample.tms_stime;
+    lastUserCPU = timeSample.tms_utime;
+
+    return percent;
+}
+
+double Performance_Monitoring::get_cpu(){
+    double percent;
+    FILE* file;
+    unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
+
+    file = fopen("/proc/stat", "r");
+    fscanf(file, "cpu %llu %llu %llu %llu", &totalUser, &totalUserLow,
+        &totalSys, &totalIdle);
+    fclose(file);
+
+    if (totalUser < lastTotalUser || totalUserLow < lastTotalUserLow ||
+        totalSys < lastTotalSys || totalIdle < lastTotalIdle){
+        //Overflow detection. Just skip this value.
+        percent = -1.0;
+    }
+    else{
+        total = (totalUser - lastTotalUser) + (totalUserLow - lastTotalUserLow) +
+            (totalSys - lastTotalSys);
+        percent = total;
+        total += (totalIdle - lastTotalIdle);
+        percent /= total;
+        percent *= 100;
+    }
+
+    lastTotalUser = totalUser;
+    lastTotalUserLow = totalUserLow;
+    lastTotalSys = totalSys;
+    lastTotalIdle = totalIdle;
+
+    return percent;
 }
 
 void Performance_Monitoring::run(){
