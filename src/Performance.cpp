@@ -7,11 +7,11 @@
 #include <thread>
 #include <sstream>
 #include <iostream>
-#include "sys/times.h"
-#include "sys/vtimes.h"
+#include <sys/times.h>
+#include <sys/vtimes.h>
 
-#include "Performance.h"
-#include "Logging.h"
+#include <Performance.h>
+#include <Logging.h>
 
 Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_flag)
     : stop_thread_flag(&stop_thread_flag){
@@ -19,19 +19,18 @@ Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_fl
     }
 
 void Performance_Monitoring::monitor(){
-    Logging log("performance.log");
+    Logging log;
 
     while(stop_thread_flag){
 
-        // process memory; process CPU; total CPU; ram avail; total ram; avalable swap; total swap
+        // process CPU; total CPU; process memory; ram avail; total ram; avalable swap; total swap
         std::stringstream ss;
         ss << get_process_cpu() << ";" << get_cpu() << ";" <<
         get_data("/proc/self/status", "VmRSS:") << ";" << 
         get_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_data("/proc/meminfo", "MemTotal:") <<  ";" << 
         get_data("/proc/meminfo", "SwapFree:") << ";" << get_data("/proc/meminfo", "SwapTotal:");
         
-        log.log_trace(ss.str());
-        //std::cout << ss.str() << std::endl;
+        log.log_trace(ss.str(), "PERFORMANCE_LOGGING");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
