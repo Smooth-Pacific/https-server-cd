@@ -25,6 +25,7 @@ BOOST_LOG_ATTRIBUTE_KEYWORD(tag_attr, "Tag", std::string)
 
 Logging::Logging(){}
 
+// init() only has to be run once, typically at the beginning of the program to set the sinks
 void Logging::init(){
     // Setup the common formatter for all sinks
     boost::log::formatter fmt = boost::log::expressions::stream
