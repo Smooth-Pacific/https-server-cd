@@ -1,10 +1,19 @@
 class Performance_Monitoring{
     private:
+        std::atomic<bool> stop_thread_flag;
+        clock_t lastCPU, lastSysCPU, lastUserCPU;
+        int numProcessors;
+        unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
+        
         void monitor();
 
-        uint16_t parse_line(char* line);
-        uint16_t get_process_ram_usage();
-        std::atomic<bool> stop_thread_flag;
+        // get memory usage
+        int parse_line(char* line);
+        int get_data(const char* path, const char* line_name);
+
+        void init();
+        double get_process_cpu();
+        double get_cpu();
 
     public:
         Performance_Monitoring(std::atomic<bool>& stop_thread_flag);

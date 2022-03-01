@@ -17,13 +17,13 @@ Config::Config(bool debug = true):
     update_config();
 
     if(DEBUG_FLAG){
-        std::cout << "Server option Port:            " << GET_PORT() << std::endl;
-        std::cout << "Server option HTTPS_MEM_KEY:   " << GET_HTTPS_MEM_KEY() << std::endl;
-        std::cout << "Server option HTTPS_MEM_CERT:  " << GET_HTTPS_MEM_CERT() << std::endl;
-        std::cout << "Server option MAX_CONNECTIONS: " << GET_MAX_CONNECTIONS() << std::endl;
-        std::cout << "Server option TIMEOUT:         " << GET_CONNECTION_TIMEOUT() << std::endl;
-        std::cout << "Server option MEMORY_LIMIT:    " << GET_MEMORY_LIMIT() << std::endl;
-        std::cout << "Server option MAX_THREADS:     " << GET_MAX_THREADS() << std::endl;
+        std::cout << "Server option Port:              "<< GET_PORT() << std::endl;
+        std::cout << "Server option HTTPS_MEM_KEY:     "<< GET_HTTPS_MEM_KEY() << std::endl;
+        std::cout << "Server option HTTPS_MEM_CERT:    "<< GET_HTTPS_MEM_CERT() << std::endl;
+        std::cout << "Server option MAX_CONNECTIONS:   "<< GET_MAX_CONNECTIONS() << std::endl;
+        std::cout << "Server option CONNECTION_TIMEOUT:"<< GET_CONNECTION_TIMEOUT() << std::endl;
+        std::cout << "Server option MEMORY_LIMIT:      "<< GET_MEMORY_LIMIT() << std::endl;
+        std::cout << "Server option MAX_THREADS:       "<< GET_MAX_THREADS() << std::endl;
     }
 }
 
@@ -41,11 +41,23 @@ T Config::update_option(T& option, const char* env_var){
 template <typename T, unsigned int base>
 T Config::update_option(T& option, const char* env_var){
     char* buffer = getenv(env_var);
-    if(buffer != NULL && strcmp(getenv(env_var), "0") != 0){     // compares !NULL and !"0"
-        return static_cast<T>(std::stoul(getenv(env_var), nullptr, base));
+    try{
+        if(buffer != NULL){
+            int env_num = std::stoi(buffer);
+            if(env_num > 0 && env_num < 65536){
+                return static_cast<T>(std::stoul(buffer, nullptr, base));
+            }
+            else{
+                throw(buffer);
+            }
+        }
+        else{
+            return option;
+        }
     }
-    else{
-        return option;
+    catch(const char* e){
+        std::cout << "ERROR: " << env_var << " - " << e << " out of bounds" << std::endl;
+        exit(1);
     }
 }
 
@@ -53,7 +65,6 @@ Config& Config::get_instance(bool debug){
     static Config config(debug);
     return config;
 }
-
 // #### PUBLIC METHODS START HERE #### //
 
 // this should only ever be used for testing purposes outside of the class

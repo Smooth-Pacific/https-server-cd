@@ -6,9 +6,10 @@
 #include <filesystem>
 #include <atomic>
 
-#include "Config.h"                 // Config
-#include "Performance.h"            // Performance_Monitoring
-#include "HelloWorldResource.h"     // hello_world_resource
+#include <Config.h>                 // Config
+#include <Performance.h>            // Performance_Monitoring
+#include <HelloWorldResource.h>     // hello_world_resource
+#include <Logging.h>                // Logging
 
 void custom_access_log(const std::string& url){
     // I will probably log something here when clients connect
@@ -16,6 +17,9 @@ void custom_access_log(const std::string& url){
 
 int main(int argc, char** argv) {
     Config& config = Config::get_instance();
+
+    Logging log;
+    log.init();
 
     std::atomic<bool> stop_thread_flag = false;
     Performance_Monitoring pm(stop_thread_flag);
