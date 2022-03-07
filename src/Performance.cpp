@@ -26,9 +26,9 @@ void Performance_Monitoring::monitor(){
         // process CPU; total CPU; process memory; ram avail; total ram; avalable swap; total swap
         std::stringstream ss;
         ss << get_process_cpu() << ";" << get_cpu() << ";" <<
-        get_data("/proc/self/status", "VmRSS:") << ";" << 
-        get_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_data("/proc/meminfo", "MemTotal:") <<  ";" << 
-        get_data("/proc/meminfo", "SwapFree:") << ";" << get_data("/proc/meminfo", "SwapTotal:");
+        get_mem_data("/proc/self/status", "VmRSS:") << ";" << 
+        get_mem_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_mem_data("/proc/meminfo", "MemTotal:") <<  ";" << 
+        get_mem_data("/proc/meminfo", "SwapFree:") << ";" << get_mem_data("/proc/meminfo", "SwapTotal:");
         
         log.log_trace(ss.str(), "PERFORMANCE_LOGGING");
 
@@ -49,7 +49,7 @@ int Performance_Monitoring::parse_line(char* line){
 }
 
 // returns data in KB
-int Performance_Monitoring::get_data(const char* path, const char* line_name){
+int Performance_Monitoring::get_mem_data(const char* path, const char* line_name){
     FILE* file = fopen(path, "r");
     int result = -1;
     char line[128];

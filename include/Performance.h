@@ -9,7 +9,7 @@ class Performance_Monitoring{
 
         // get memory usage
         int parse_line(char* line);
-        int get_data(const char* path, const char* line_name);
+        int get_mem_data(const char* path, const char* line_name);
 
         void init();
         double get_process_cpu();
