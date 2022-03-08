@@ -26,3 +26,6 @@ target_link_libraries(latency ${CURL_LIBRARIES})
 
 add_executable(request request.cpp)
 target_link_libraries(request ${CURL_LIBRARIES} ${Boost_LIBRARIES})
+
+add_executable(response response.cpp)
+target_link_libraries(response ${CURL_LIBRARIES} ${Boost_LIBRARIES})

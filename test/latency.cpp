@@ -41,7 +41,7 @@ int curl_server(){
 
 template <typename T>
 float get_average(T vec){
-    float sum = std::accumulate(vec.begin()+1,vec.end(),0);
+    float sum = std::accumulate(vec.begin(),vec.end(),0);
 
     return sum / vec.size();
 }
@@ -58,7 +58,7 @@ int main(int argc, char *argv[]){
         if(response == 200){
             std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
             //std::cout << response << std::endl;
-            latency.push_back(std::chrono::duration_cast<std::chrono::microseconds>(end-start).count());
+            latency.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count());
         }
         else{
             std::cout << response << std::endl;
@@ -71,5 +71,5 @@ int main(int argc, char *argv[]){
     //for(auto lat:latency){
     //    std::cout << lat << std::endl;
     //}
-    std::cout << "Average latency usage (microseconds): " << get_average(latency) << "%" << std::endl;
+    std::cout << "Average latency usage (milliseconds): " << get_average(latency) << "ms" << std::endl;
 }

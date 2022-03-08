@@ -9,8 +9,6 @@
 #include <iomanip>
 #include <math.h>
 
-//char* id;
-
 size_t write_data(void *buffer, size_t size, size_t nmemb, void *userp){
    return size * nmemb;
 }
@@ -103,5 +101,5 @@ int main(int argc, char *argv[]){
     //    std::cout << response << std::endl;
     //}
 
-    std::cout << std::fixed << std::setprecision(0) << "Average response rate: " << get_average(responses) << " req/s" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average request rate: " << get_average(responses) << " req/s" << std::endl;
 }
