@@ -148,6 +148,6 @@ int main(){
     //}
     
     std::cout << "Average CPU usage (10s): " << get_average(cpu_usage) << "%" << std::endl;
-    std::cout << std::fixed << "Average RAM availability (10s): " << get_average(free_ram) << "KB" << std::endl;
-    std::cout << std::fixed << "Average SWAP availability (10s): " << get_average(free_swap) << "KB" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average RAM availability (10s): " << get_average(free_ram) << "KB" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average SWAP availability (10s): " << get_average(free_swap) << "KB" << std::endl;
 }
