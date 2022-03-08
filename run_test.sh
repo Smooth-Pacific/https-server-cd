@@ -51,6 +51,7 @@ then
 else
     echo "./build/test/response not found"
 fi
+echo "" >> $summary
 
 echo "Running data throughput test - 1MB Writes"
 echo "Data Throughput - 1MB Writes" >> $summary
@@ -164,6 +165,5 @@ awk '/IOPS/ {print $2,$3,$4}' fio6_temp >> $summary
 tail -n 2 fio6_temp >> $summary
 rm random-read*
 rm fio6_temp
-echo '\n'>> $summary
 
 echo "#### End Test Suite #### \n" >> $summary
