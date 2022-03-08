@@ -69,7 +69,7 @@ void threaded_curl(std::atomic<int>& sleep_time, std::atomic<bool>& stop_thread_
             }
         }
         else{
-            std::cout << sleep_time << ": " << response << std::endl;
+            //std::cout << sleep_time << ": " << response << std::endl;
             stop_thread_flag = true;
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
