@@ -42,6 +42,7 @@ RUN apt-get install -y --no-install-recommends libboost-all-dev
 RUN apt-get install -y --no-install-recommends iproute2
 RUN apt-get install -y --no-install-recommends python3-pip
 RUN apt-get install -y --no-install-recommends libcurl4-openssl-dev
+RUN apt-get install -y --no-install-recommends fio
                                            
 RUN apt-get install -y --no-install-recommends libboost-dev 
 
