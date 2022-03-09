@@ -100,7 +100,7 @@ std::string Config::GET_HTTPS_MEM_CERT(){
 uint16_t Config::GET_MAX_THREADS(){
     // if more than 4 cores is set, start a thread pool (>1 cores automatically starts a thread pool)
     const int processor_count = std::thread::hardware_concurrency();
-    if(MAX_THREADS > 4 && processor_count > 4){
+    if(MAX_THREADS >= 4 && processor_count >= 4){
         return MAX_THREADS;
     }
     return 1;

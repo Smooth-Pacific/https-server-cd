@@ -56,7 +56,7 @@ void threaded_curl(std::atomic<int>& sleep_time, std::atomic<bool>& stop_thread_
         if(response == 200){
             if(sleep_time > 0){
                 //std::cout << sleep_time << ": " << response << std::endl;
-                sleep_time -= 10;
+                sleep_time.fetch_sub(10);
             }
             else{
                 std::cout << "reached max speed" << std::endl;
