@@ -3,6 +3,7 @@
 #include <iostream>
 #include <filesystem>
 #include <unistd.h>
+#include <thread>
 
 #include <HelloWorldResource.h>
 #include <Logging.h>
@@ -34,8 +35,7 @@ const std::shared_ptr<httpserver::http_response> hello_world_resource::render(co
 }
 
 const std::shared_ptr<httpserver::http_response> file_resource::render(const httpserver::http_request& req){
-    std::chrono::steady_clock::time_point start = std::chrono::steady_clock::now();
-    std::string ip_addr = req.http_request::get_requestor();
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
     bool reload_nonce = false;
 
