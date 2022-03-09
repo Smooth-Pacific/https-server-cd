@@ -62,7 +62,9 @@ int main(int argc, char** argv) {
     
     // create resource and endpoint
     hello_world_resource hwr;
+    file_resource fr;
     ws.register_resource("/helloworld", &hwr);
+    ws.register_resource("/file/{arg1}", &fr);
 
     // start web server
     ws.start(true);

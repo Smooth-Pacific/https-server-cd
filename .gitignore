@@ -4,3 +4,4 @@ build
 certs
 data.log
 src/Makefile
+*.log

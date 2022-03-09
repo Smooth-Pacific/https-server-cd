@@ -1,42 +1,17 @@
-#include <boost/log/core.hpp>
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <chrono>
-#include <thread>
-#include <sstream>
 #include <iostream>
+#include <string.h>
 #include <sys/times.h>
 #include <sys/vtimes.h>
+#include <thread>
+#include <vector>
+#include <numeric>
+#include <iomanip>
 
-#include <Performance.h>
-#include <Logging.h>
+clock_t lastCPU, lastSysCPU, lastUserCPU;
+int numProcessors;
+unsigned long long lastTotalUser, lastTotalUserLow, lastTotalSys, lastTotalIdle;
 
-Performance_Monitoring::Performance_Monitoring(std::atomic<bool>& stop_thread_flag)
-    : stop_thread_flag(&stop_thread_flag){
-        init();
-    }
-
-void Performance_Monitoring::monitor(){
-    Logging log;
-
-    while(stop_thread_flag){
-
-        // process CPU; total CPU; process memory; ram avail; total ram; avalable swap; total swap
-        std::stringstream ss;
-        ss << get_process_cpu() << ";" << get_cpu() << ";" <<
-        get_mem_data("/proc/self/status", "VmRSS:") << ";" << 
-        get_mem_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_mem_data("/proc/meminfo", "MemTotal:") <<  ";" << 
-        get_mem_data("/proc/meminfo", "SwapFree:") << ";" << get_mem_data("/proc/meminfo", "SwapTotal:");
-        
-        log.log_trace(ss.str(), "PERFORMANCE_LOGGING");
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-    }
-}
-
-int Performance_Monitoring::parse_line(char* line){
+int parse_line(char* line){
     // This assumes that a digit will be found and the line ends in " Kb".
     int i = strlen(line);
     const char* p = line;
@@ -49,7 +24,7 @@ int Performance_Monitoring::parse_line(char* line){
 }
 
 // returns data in KB
-int Performance_Monitoring::get_mem_data(const char* path, const char* line_name){
+int get_mem_data(const char* path, const char* line_name){
     FILE* file = fopen(path, "r");
     int result = -1;
     char line[128];
@@ -64,7 +39,7 @@ int Performance_Monitoring::get_mem_data(const char* path, const char* line_name
     return result;
 }
 
-void Performance_Monitoring::init(){
+void init(){
     FILE* file_process_cpu;
     struct tms timeSample;
     char line[128];
@@ -86,7 +61,7 @@ void Performance_Monitoring::init(){
     fclose(file_cpu);
 }
 
-double Performance_Monitoring::get_process_cpu(){
+double get_process_cpu(){
     struct tms timeSample;
     clock_t now;
     double percent;
@@ -111,7 +86,7 @@ double Performance_Monitoring::get_process_cpu(){
     return percent;
 }
 
-double Performance_Monitoring::get_cpu(){
+double get_cpu(){
     double percent;
     FILE* file;
     unsigned long long totalUser, totalUserLow, totalSys, totalIdle, total;
@@ -143,6 +118,36 @@ double Performance_Monitoring::get_cpu(){
     return percent;
 }
 
-void Performance_Monitoring::run(){
-    monitor();
+template <typename T>
+float get_average(T vec){
+    float sum = std::accumulate(vec.begin()+1,vec.end(),0);
+
+    return sum / vec.size();
+}
+
+int main(){
+    init();
+    double time;
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    
+    std::vector<float> cpu_usage, free_ram, free_swap;
+    while(time < 10){
+
+        cpu_usage.push_back(get_cpu());
+        free_ram.push_back(get_mem_data("/proc/meminfo", "MemAvailable:"));
+        free_swap.push_back(get_mem_data("/proc/meminfo", "SwapFree:"));
+        
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+        std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+        time = std::chrono::duration<double> (end - begin).count();
+    }
+
+    //for(auto cpu:cpu_usage){
+    //    std::cout << cpu << std::endl;
+    //}
+    
+    std::cout << "Average CPU usage (10s): " << get_average(cpu_usage) << "%" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average RAM availability (10s): " << get_average(free_ram) << "KB" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average SWAP availability (10s): " << get_average(free_swap) << "KB" << std::endl;
 }
