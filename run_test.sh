@@ -21,6 +21,12 @@ echo "#### Start Test Suite ####" >> $summary
 echo "Running APM setup"
 cat /proc/cpuinfo | grep -m 1 "model name" >> $summary
 cat /proc/cpuinfo | grep -m 1 "cpu cores" >> $summary
+cat /proc/meminfo | grep -m 1 "MemTotal:" >> $summary
+cat /proc/meminfo | grep -m 1 "SwapTotal:" >> $summary
+echo "[Start HTTP Settings]" >> $summary
+cat ./run_server.sh | grep export | awk '{print $2}' >> $summary
+echo "[End HTTP Settings]\n" >> $summary
+
 if [ -f ./build/test/setup ];
 then
     ./build/test/setup >> $summary
@@ -165,5 +171,6 @@ awk '/IOPS/ {print $2,$3,$4}' fio6_temp >> $summary
 tail -n 2 fio6_temp >> $summary
 rm random-read*
 rm fio6_temp
+echo '\n'>> $summary
 
 echo "#### End Test Suite #### \n" >> $summary
