@@ -38,8 +38,8 @@ int curl_server(std::atomic<long>& total_throughput){
     curl_easy_getinfo(hnd, CURLINFO_RESPONSE_CODE, &response_code);
 
     long size;
-    curl_easy_getinfo(hnd, CURLINFO_HEADER_SIZE, &size);
-    total_throughput += size;
+    curl_easy_getinfo(hnd, CURLINFO_SIZE_DOWNLOAD_T, &size);
+    total_throughput.fetch_add(size);
     
     curl_easy_cleanup(hnd);
     hnd = NULL;
@@ -60,7 +60,7 @@ void threaded_curl(std::atomic<int>& sleep_time, std::atomic<bool>& stop_thread_
         if(response == 200){
             if(sleep_time > 0){
                 //std::cout << sleep_time << ": " << response << std::endl;
-                sleep_time -= 10;
+                sleep_time.fetch_sub(10);
             }
             else{
                 std::cout << "reached max speed" << std::endl;
