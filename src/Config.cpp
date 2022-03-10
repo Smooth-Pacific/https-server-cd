@@ -6,9 +6,8 @@
 #include <cstring>
 #include <sstream>
 
-Config::Config(Logging log, bool debug = true): 
+Config::Config(Logging log): 
     log(log),
-    DEBUG_FLAG(debug),
     PORT(8080), 
     MAX_CONNECTIONS(32), 
     CONNECTION_TIMEOUT(180), 
@@ -21,16 +20,40 @@ Config::Config(Logging log, bool debug = true):
     // update values if environment variables are set
     update_config();
 
-    if(DEBUG_FLAG){
-        std::cout << "Server option Port:              "<< GET_PORT() << std::endl;
-        std::cout << "Server option HTTPS_MEM_KEY:     "<< GET_HTTPS_MEM_KEY() << std::endl;
-        std::cout << "Server option HTTPS_MEM_CERT:    "<< GET_HTTPS_MEM_CERT() << std::endl;
-        std::cout << "Server option MAX_CONNECTIONS:   "<< GET_MAX_CONNECTIONS() << std::endl;
-        std::cout << "Server option CONNECTION_TIMEOUT:"<< GET_CONNECTION_TIMEOUT() << std::endl;
-        std::cout << "Server option MEMORY_LIMIT:      "<< GET_MEMORY_LIMIT() << std::endl;
-        std::cout << "Server option MAX_THREADS:       "<< GET_MAX_THREADS() << std::endl;
-        std::cout << "Server option NONCE_SEED:        "<< GET_NONCE_SEED() << std::endl;
-    }
+    std::stringstream ss;
+
+    ss << "Server option Port:                  "<< GET_PORT();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option HTTPS_MEM_KEY:         "<< GET_HTTPS_MEM_KEY();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option HTTPS_MEM_CERT:        "<< GET_HTTPS_MEM_CERT();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option MAX_CONNECTIONS:       "<< GET_MAX_CONNECTIONS();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option CONNECTION_TIMEOUT:    "<< GET_CONNECTION_TIMEOUT();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option MEMORY_LIMIT:          "<< GET_MEMORY_LIMIT();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option MAX_THREADS:           "<< GET_MAX_THREADS();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
+    ss << "Server option NONCE_SEED:            "<< GET_NONCE_SEED();
+    log.log(Logging::severity_level::info, ss.str(), "SERVER");
+    ss.str("");
+
 }
 
 template <typename T>
@@ -70,8 +93,8 @@ T Config::update_option(T& option, const char* env_var){
     }
 }
 
-Config& Config::get_instance(Logging log, bool debug){
-    static Config config(log, debug);
+Config& Config::get_instance(Logging log){
+    static Config config(log);
     return config;
 }
 // #### PUBLIC METHODS START HERE #### //

@@ -3,7 +3,7 @@
 #include <Logging.h>
 class Config{
     private:
-        Config(Logging log, bool debug);
+        Config(Logging log);
 
         Logging log;
 
@@ -24,7 +24,7 @@ class Config{
         T update_option(T& option, const char* env_var);
 
     public:
-        static Config& get_instance(Logging log, bool debug = true);
+        static Config& get_instance(Logging log);
 
         void update_config();
 

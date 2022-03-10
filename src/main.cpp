@@ -16,8 +16,11 @@ void custom_access_log(const std::string& url){
 }
 
 int main(int argc, char** argv) {
+    std::stringstream ss;
     Logging log;
     log.init();
+
+    log.log(Logging::severity_level::info, "HTTP server has started", "SERVER");
 
     Config& config = Config::get_instance(log);
 
@@ -43,7 +46,6 @@ int main(int argc, char** argv) {
         cw.https_mem_key(config.GET_HTTPS_MEM_KEY());
     }
     else{
-        std::stringstream ss;
         ss << "Could not find HTTPS_MEM_KEY: " << config.GET_HTTPS_MEM_KEY();
         log.log(Logging::severity_level::critical, ss.str(), "SERVER");
         stop_thread_flag = true;    // allow for graceful stop of logging thread
@@ -55,7 +57,6 @@ int main(int argc, char** argv) {
         cw.https_mem_cert(config.GET_HTTPS_MEM_CERT());
     }
     else{
-        std::stringstream ss;
         ss << "Could not find HTTPS_MEM_CERT: " << config.GET_HTTPS_MEM_CERT();
         log.log(Logging::severity_level::critical, ss.str(), "SERVER");
         stop_thread_flag = true;    // allow for graceful stop of logging thread   
