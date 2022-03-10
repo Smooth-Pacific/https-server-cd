@@ -10,7 +10,8 @@ int main(int argc, char **argv){
 }
 
 TEST(Config_Class, Default_Values){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     ASSERT_EQ(config.GET_PORT(), 8080);
     ASSERT_EQ(config.GET_MAX_CONNECTIONS(), 32);
@@ -22,7 +23,8 @@ TEST(Config_Class, Default_Values){
 }
 
 TEST(Config_Class, Ports){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     //setenv("PORT", "0", 1);
     //config.update_config();
@@ -46,7 +48,8 @@ TEST(Config_Class, Ports){
 }
 
 TEST(Config_Class, Max_connections){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     //setenv("MAX_CONNECTIONS", "0", 1);
     //config.update_config();
@@ -66,7 +69,8 @@ TEST(Config_Class, Max_connections){
 }
 
 TEST(Config_Class, Connection_timeout){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     //setenv("CONNECTION_TIMEOUT", "0", 1);
     //config.update_config();
@@ -86,7 +90,8 @@ TEST(Config_Class, Connection_timeout){
 }
 
 TEST(Config_Class, Memory_limit){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     //setenv("MEMORY_LIMIT", "0", 1);
     //config.update_config();
@@ -106,7 +111,8 @@ TEST(Config_Class, Memory_limit){
 }
 
 TEST(Config_Class, Max_threads){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     //setenv("MAX_THREADS", "0", 1);
     //config.update_config();
@@ -126,7 +132,8 @@ TEST(Config_Class, Max_threads){
 }
 
 TEST(Config_Class, HTTPS_MEM_KEY_PATH){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     setenv("HTTPS_MEM_KEY_PATH", "~/certs/server_ca/private/smoothstack_server.key", 1);
     config.update_config();
@@ -142,7 +149,8 @@ TEST(Config_Class, HTTPS_MEM_KEY_PATH){
 }
 
 TEST(Config_Class, HTTPS_MEM_CERT_PATH){
-    Config& config = Config::get_instance(false);
+    Logging log;
+    Config& config = Config::get_instance(log, false);
 
     setenv("HTTPS_MEM_CERT_PATH", "~/certs/server_ca/cert/smoothstack_server.crt", 1);
     config.update_config();
