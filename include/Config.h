@@ -1,8 +1,11 @@
 #include <string>
 
+#include <Logging.h>
 class Config{
     private:
-        Config(bool debug);
+        Config(Logging log, bool debug);
+
+        Logging log;
 
         uint16_t         PORT;
         uint16_t         MAX_CONNECTIONS;
@@ -20,7 +23,7 @@ class Config{
         T update_option(T& option, const char* env_var);
 
     public:
-        static Config& get_instance(bool debug = true);
+        static Config& get_instance(Logging log, bool debug = true);
 
         void update_config();
 

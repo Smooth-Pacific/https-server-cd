@@ -1,6 +1,7 @@
 include_directories(../include)
 
 add_library(config STATIC Config.cpp)
+target_link_libraries(config logging)
 
 add_library(logging STATIC Logging.cpp)
 target_link_libraries(logging ${Boost_LIBRARIES})

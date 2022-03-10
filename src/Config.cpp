@@ -1,9 +1,13 @@
-#include "Config.h"
+#include <Config.h>
+//#include <Logging.h>
+
 #include <thread>
 #include <iostream>
 #include <cstring>
+#include <sstream>
 
-Config::Config(bool debug = true): 
+Config::Config(Logging log, bool debug = true): 
+    log(log),
     DEBUG_FLAG(debug),
     PORT(8080), 
     MAX_CONNECTIONS(32), 
@@ -40,6 +44,7 @@ T Config::update_option(T& option, const char* env_var){
 
 template <typename T, unsigned int base>
 T Config::update_option(T& option, const char* env_var){
+    std::stringstream ss;
     char* buffer = getenv(env_var);
     try{
         if(buffer != NULL){
@@ -56,13 +61,15 @@ T Config::update_option(T& option, const char* env_var){
         }
     }
     catch(const char* e){
-        std::cout << "ERROR: " << env_var << " - " << e << " out of bounds" << std::endl;
+        ss << env_var << " - " << e << " out of bounds";
+        log.log(Logging::severity_level::critical, ss.str(), "SERVER");
+        std::cerr << "ERROR: " << env_var << " - " << e << " out of bounds" << std::endl;
         exit(1);
     }
 }
 
-Config& Config::get_instance(bool debug){
-    static Config config(debug);
+Config& Config::get_instance(Logging log, bool debug){
+    static Config config(log, debug);
     return config;
 }
 // #### PUBLIC METHODS START HERE #### //
