@@ -13,7 +13,6 @@
 #include <boost/log/utility/value_ref.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/support/date_time.hpp>
-#include <boost/log/sinks/text_file_backend.hpp>
 
 #include <string>
 #include <iomanip>
