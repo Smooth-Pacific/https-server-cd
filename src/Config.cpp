@@ -15,7 +15,8 @@ Config::Config(Logging log, bool debug = true):
     MEMORY_LIMIT(32768),
     MAX_THREADS(1), 
     HTTPS_MEM_KEY("./certs/server_ca/private/smoothstack_server.key"),
-    HTTPS_MEM_CERT("./certs/server_ca/certs/smoothstack_server.crt"){
+    HTTPS_MEM_CERT("./certs/server_ca/certs/smoothstack_server.crt"),
+    NONCE_SEED("Default_nonce_seed"){
 
     // update values if environment variables are set
     update_config();
@@ -28,6 +29,7 @@ Config::Config(Logging log, bool debug = true):
         std::cout << "Server option CONNECTION_TIMEOUT:"<< GET_CONNECTION_TIMEOUT() << std::endl;
         std::cout << "Server option MEMORY_LIMIT:      "<< GET_MEMORY_LIMIT() << std::endl;
         std::cout << "Server option MAX_THREADS:       "<< GET_MAX_THREADS() << std::endl;
+        std::cout << "Server option NONCE_SEED:        "<< GET_NONCE_SEED() << std::endl;
     }
 }
 
@@ -83,6 +85,7 @@ void Config::update_config(){
     CONNECTION_TIMEOUT  = update_option<uint16_t, 10>   (CONNECTION_TIMEOUT, "CONNECTION_TIMEOUT");
     MEMORY_LIMIT        = update_option<uint16_t, 10>   (MEMORY_LIMIT, "MEMORY_LIMIT");
     MAX_THREADS         = update_option<uint16_t, 10>   (MAX_THREADS, "MAX_THREADS");
+    NONCE_SEED          = update_option<std::string>    (NONCE_SEED, "NONCE_SEED");
 }
 
 // getters
@@ -111,4 +114,7 @@ uint16_t Config::GET_MAX_THREADS(){
         return MAX_THREADS;
     }
     return 1;
+}
+std::string Config::GET_NONCE_SEED(){
+    return NONCE_SEED;
 }

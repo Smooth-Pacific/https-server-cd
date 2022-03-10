@@ -35,7 +35,8 @@ int main(int argc, char** argv) {
         .max_threads(config.GET_MAX_THREADS())
         .log_access(custom_access_log)
         .use_dual_stack()
-        .digest_auth();
+        .digest_auth()
+        .digest_auth_random(config.GET_NONCE_SEED());
 
     // check for valid CA key
     if(std::filesystem::exists(config.GET_HTTPS_MEM_KEY())){

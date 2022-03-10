@@ -15,6 +15,7 @@ class Config{
         std::string      HTTPS_MEM_KEY;
         std::string      HTTPS_MEM_CERT;
         bool             DEBUG_FLAG;
+        std::string      NONCE_SEED;
 
         template <typename T>
         T update_option(T& option, const char* env_var);
@@ -34,4 +35,5 @@ class Config{
         uint16_t         GET_MAX_THREADS();
         std::string      GET_HTTPS_MEM_KEY();
         std::string      GET_HTTPS_MEM_CERT();
+        std::string      GET_NONCE_SEED();
 };
