@@ -21,5 +21,6 @@ class Logging{
         };
         
         // logging methods
+        void log(severity_level sl, const std::string& msg, const std::string& filter = "");
         void log_trace(const std::string& msg, const std::string& filter = "");
 };

@@ -13,6 +13,7 @@
 #include <boost/log/utility/value_ref.hpp>
 #include <boost/log/utility/setup/common_attributes.hpp>
 #include <boost/log/support/date_time.hpp>
+#include <boost/log/sinks/text_file_backend.hpp>
 
 #include <string>
 #include <iomanip>
@@ -42,33 +43,43 @@ void Logging::init(){
 
     // initialize stream to write to all.log
     sink->locked_backend()->add_stream(
-        boost::make_shared<std::ofstream>("all.log"));
+        boost::make_shared<std::ofstream>("all.log", std::ios::out | std::ios::app));
     sink->set_formatter(fmt);
+    //sink->locked_backend()->set_open_mode(std::ios_base::app);
     boost::log::core::get()->add_sink(sink);
     sink->locked_backend()->auto_flush(false);       // sets autoflush; this needs to set to false in prod(true for testing)
 
     // initialize stream to write to performance.log
     sink = boost::make_shared<text_sink>();
     sink->locked_backend()->add_stream(
-        boost::make_shared<std::ofstream>("performance.log"));
+        boost::make_shared<std::ofstream>("performance.log", std::ios::out | std::ios::app));
     sink->set_formatter(fmt);
     sink->set_filter(severity >= trace && (         // filter attributes
         boost::log::expressions::has_attr(tag_attr) && tag_attr == "PERFORMANCE_LOGGING"));
     boost::log::core::get()->add_sink(sink);
     sink->locked_backend()->auto_flush(true);       // sets autoflush; realtime performance monitoring
 
-    // initialize stream to write to apm.log
+    // initialize stream to write to server.log
     sink = boost::make_shared<text_sink>();
     sink->locked_backend()->add_stream(
-        boost::make_shared<std::ofstream>("apm.log"));
+        boost::make_shared<std::ofstream>("server.log", std::ios::out | std::ios::app));
     sink->set_formatter(fmt);
     sink->set_filter(severity >= trace && (         // filter attributes
-        boost::log::expressions::has_attr(tag_attr) && tag_attr == "APM"));
+        boost::log::expressions::has_attr(tag_attr) && tag_attr == "SERVER"));
     boost::log::core::get()->add_sink(sink);
     sink->locked_backend()->auto_flush(true);       // sets autoflush; needs to be false in prod(true for testing)
 
     // add attributes
     boost::log::add_common_attributes();
+}
+
+void Logging::log(severity_level sl, const std::string& msg, const std::string& filter){
+    boost::log::sources::severity_logger_mt<severity_level> severity_log;       // need to use _mt to allow multithreading
+    char* buffer = new char[filter.length() +1];
+    std::strcpy(buffer, filter.c_str());
+    
+    BOOST_LOG_SCOPED_THREAD_TAG("Tag", buffer);
+    BOOST_LOG_SEV(severity_log, sl) << msg;
 }
 
 void Logging::log_trace(const std::string& msg, const std::string& filter){
