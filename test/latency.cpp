@@ -15,15 +15,15 @@ int curl_server(){
 
     hnd = curl_easy_init();
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-    curl_easy_setopt(hnd, CURLOPT_URL, "https://[::1]:8081/file/example.xml/");
+    curl_easy_setopt(hnd, CURLOPT_URL, "https://172.17.0.2:8081/file/example.xml/");
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_USERPWD, "calvin:mypass");
-    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "adfl;kjasdfhiuhfdv");
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "Some random data");
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)18);
     curl_easy_setopt(hnd, CURLOPT_HTTPAUTH, (long)CURLAUTH_DIGEST);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.71.1");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-    curl_easy_setopt(hnd, CURLOPT_CAINFO, "/usr/local/share/ca-certificates/smoothstack_client.crt");
+    curl_easy_setopt(hnd, CURLOPT_CAINFO, "/usr/local/share/ca-certificates/smoothstack_root.crt");
     curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "/home/calvin/.ssh/known_hosts");
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_data);       // write output to nothing
@@ -61,7 +61,7 @@ int main(int argc, char *argv[]){
             latency.push_back(std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count());
         }
         else{
-            std::cout << response << std::endl;
+            //std::cout << response << std::endl;
         }
 
         std::chrono::steady_clock::time_point end_timer = std::chrono::steady_clock::now();
