@@ -30,7 +30,7 @@ void Performance_Monitoring::monitor(){
         get_mem_data("/proc/meminfo", "MemAvailable:") <<  ";" << get_mem_data("/proc/meminfo", "MemTotal:") <<  ";" << 
         get_mem_data("/proc/meminfo", "SwapFree:") << ";" << get_mem_data("/proc/meminfo", "SwapTotal:");
         
-        log.log_trace(ss.str(), "PERFORMANCE_LOGGING");
+        log.log(Logging::severity_level::trace, ss.str(), "PERFORMANCE_LOGGING");
 
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
