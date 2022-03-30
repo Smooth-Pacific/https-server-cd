@@ -19,15 +19,15 @@ int curl_server(){
 
     hnd = curl_easy_init();
     curl_easy_setopt(hnd, CURLOPT_BUFFERSIZE, 102400L);
-    curl_easy_setopt(hnd, CURLOPT_URL, "https://[::1]:8081/file/example.xml/");
+    curl_easy_setopt(hnd, CURLOPT_URL, "https://172.17.0.2:8081/file/example.xml/");
     curl_easy_setopt(hnd, CURLOPT_NOPROGRESS, 1L);
     curl_easy_setopt(hnd, CURLOPT_USERPWD, "calvin:mypass");
-    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "adfl;kjasdfhiuhfdv");
+    curl_easy_setopt(hnd, CURLOPT_POSTFIELDS, "Some random data");
     curl_easy_setopt(hnd, CURLOPT_POSTFIELDSIZE_LARGE, (curl_off_t)18);
     curl_easy_setopt(hnd, CURLOPT_HTTPAUTH, (long)CURLAUTH_DIGEST);
     curl_easy_setopt(hnd, CURLOPT_USERAGENT, "curl/7.71.1");
     curl_easy_setopt(hnd, CURLOPT_MAXREDIRS, 50L);
-    curl_easy_setopt(hnd, CURLOPT_CAINFO, "/usr/local/share/ca-certificates/smoothstack_client.crt");
+    curl_easy_setopt(hnd, CURLOPT_CAINFO, "/usr/local/share/ca-certificates/smoothstack_root.crt");
     curl_easy_setopt(hnd, CURLOPT_SSH_KNOWNHOSTS, "/home/calvin/.ssh/known_hosts");
     curl_easy_setopt(hnd, CURLOPT_TCP_KEEPALIVE, 1L);
     curl_easy_setopt(hnd, CURLOPT_WRITEFUNCTION, write_data);       // write output to nothing
@@ -50,42 +50,38 @@ float get_average(T vec){
     return sum / vec.size();
 }
 
-void threaded_curl(std::atomic<int>& sleep_time, std::atomic<bool>& stop_thread_flag){
-    while(!stop_thread_flag){
+void threaded_curl(std::atomic<int>& success, std::atomic<int>& fail){
+    std::chrono::steady_clock::time_point start_timer = std::chrono::steady_clock::now();
+    double time;
+    
+    while(time < 10){
         int response = curl_server();
         if(response == 200){
-            if(sleep_time > 0){
-                //std::cout << sleep_time << ": " << response << std::endl;
-                sleep_time.fetch_sub(10);
-            }
-            else{
-                std::cout << "reached max speed" << std::endl;
-                sleep_time = 1;
-                stop_thread_flag = true;
-            }
+            success.fetch_add(1);
         }
         else{
-            //std::cout << sleep_time << ": " << response << std::endl;
-            stop_thread_flag = true;
+            fail.fetch_add(1);
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(sleep_time));
+        std::chrono::steady_clock::time_point end_timer = std::chrono::steady_clock::now();
+        time = std::chrono::duration<double> (end_timer - start_timer).count();
     }
 }
 
 int main(int argc, char *argv[]){
-    std::vector<double> responses;
+    std::vector<int> success_vec;
+    std::vector<int>  fail_vec;
 
     for(int i = 0; i < 5; i++){
-        std::atomic<int> sleep_time = 500;               // time in milliseconds
-        std::atomic<bool> stop_thread_flag = false;     // if true stop threads
+        std::atomic<int> success = 0;
+        std::atomic<int> fail = 0;
         std::vector<std::thread> threads;
 
-        unsigned long const max_threads = 8;
+        unsigned long const max_threads = 2;
         unsigned long const hardware_threads = std::thread::hardware_concurrency();
         unsigned long const num_threads = std::min(hardware_threads!=0?hardware_threads:2,max_threads);
 
         for(int i = 0; i < num_threads; i++){
-            std::thread t(threaded_curl, std::ref(sleep_time), std::ref(stop_thread_flag));
+            std::thread t(threaded_curl, std::ref(success), std::ref(fail));
             threads.push_back(std::move(t));
         }
 
@@ -93,13 +89,9 @@ int main(int argc, char *argv[]){
             t.join();
         }
     
-        double rate = (sleep_time/100000.0)/2.0;
-        responses.push_back(pow(rate, -1));
+        success_vec.push_back(static_cast<int>(success));
+        fail_vec.push_back(static_cast<int>(fail));
     } 
     
-    //for(auto response:responses){
-    //    std::cout << response << std::endl;
-    //}
-
-    std::cout << std::fixed << std::setprecision(0) << "Average request rate: " << get_average(responses) << " req/s" << std::endl;
+    std::cout << std::fixed << std::setprecision(0) << "Average request success/fail rate: " << get_average(success_vec) << " / " << get_average(fail_vec) << std::endl;
 }
