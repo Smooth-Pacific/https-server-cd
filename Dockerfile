@@ -43,6 +43,7 @@ RUN apt-get install -y --no-install-recommends iproute2
 RUN apt-get install -y --no-install-recommends python3-pip
 RUN apt-get install -y --no-install-recommends libcurl4-openssl-dev
 RUN apt-get install -y --no-install-recommends fio
+RUN apt-get install -y --no-install-recommends valgrind
                                            
 RUN apt-get install -y --no-install-recommends libboost-dev 
 
@@ -79,7 +80,7 @@ COPY --chown=webserver certs $HOME/certs
 # switch to root to install CA certificate and switch back to webserver
 USER root
 # copy over CA-certificate to local container;
-COPY ./certs/root_ca/certs/smoothstack_root.crt /usr/local/share/ca-certificates/smoothstack_client.crt
+COPY ./certs/root_ca/certs/smoothstack_root.crt /usr/local/share/ca-certificates/smoothstack_root.crt
 RUN update-ca-certificates
 USER webserver
 
