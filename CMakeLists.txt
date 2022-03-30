@@ -7,8 +7,7 @@ set(TARGET "server")
 # specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ALL_DYN_LINK -pthread -g" CACHE STRING "compile flags" FORCE)
-#add_compile_options(-pthread -g)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DBOOST_ALL_DYN_LINK -pthread -g -O2" CACHE STRING "compile flags" FORCE)
 
 find_package(GTest REQUIRED)
 find_package(Boost COMPONENTS log log_setup REQUIRED)

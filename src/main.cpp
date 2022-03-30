@@ -9,7 +9,7 @@
 
 #include <Config.h>                 // Config
 #include <Performance.h>            // Performance_Monitoring
-#include <HelloWorldResource.h>     // hello_world_resource
+#include <Resource.h>               // hello_world_resource
 
 void custom_access_log(const std::string& url){
     // I will probably log something here when clients connect
