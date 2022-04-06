@@ -1,4 +1,7 @@
 # https-server-cd
+![alt text](/images/4-6-22_Utopia Architecture.png)
+# System Architecture
+
 # 1. Setup Environment
 ## 1.1 Clone PKI repo and create CA certificates
 First we will need to clone the PKI repo
